@@ -20,7 +20,7 @@ export default function AdminHome() {
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Header Section */}
-      <section className="bg-indigo-600 text-white py-10">
+      <section className="bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-700 text-white py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl font-extrabold text-center">
             Admin Dashboard

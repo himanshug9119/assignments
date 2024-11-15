@@ -126,7 +126,7 @@ export default function EditCarForm() {
 
   return (
     <div className="max-w-lg mx-auto py-6 mt-5 mb-5 px-4 bg-gray-50 rounded-lg shadow-lg">
-      <h2 className="text-2xl font-semibold text-center text-gray-800 mb-8">
+      <h2 className="text-2xl font-semibold bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-700 text-white mb-6 p-4 text-center rounded-md">
         Edit Car
       </h2>
 

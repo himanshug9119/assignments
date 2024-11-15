@@ -36,11 +36,11 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-center">
+    <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 ">
+      <div className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-center bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-700 text-white rounded-md">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Your Cars</h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <h1 className="text-2xl font-bold">Your Cars</h1>
+          <p className="mt-1 text-sm">
             Manage and track your vehicle inventory
           </p>
         </div>

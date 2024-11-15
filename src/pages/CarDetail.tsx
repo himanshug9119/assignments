@@ -74,10 +74,10 @@ export default function CarDetail() {
       </div>
 
       <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-        <div className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-center">
+        <div className="px-4 py-5 sm:px-6 flex flex-col sm:flex-row justify-between items-center bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-700 text-white mb-6 text-center rounded-md">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{car.title}</h1>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            <h1 className="text-2xl font-bold">{car.title}</h1>
+            <p className="mt-1 max-w-2xl text-sm ">
               Added on {new Date(car.createdAt).toLocaleDateString()}
             </p>
           </div>
@@ -137,7 +137,8 @@ export default function CarDetail() {
                       src={car.images[currentImageIndex]}
                       alt={`${car.title} - Image ${currentImageIndex + 1}`}
                       className={`w-full h-64 sm:h-72 object-cover rounded-lg transition-all duration-500 ease-in-out ${
-            isImageLoaded ? "opacity-100" : "opacity-0"}`}
+                        isImageLoaded ? "opacity-100" : "opacity-0"
+                      }`}
                       onLoad={() => setIsImageLoaded(true)}
                     />
                   </>
