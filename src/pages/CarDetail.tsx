@@ -20,7 +20,6 @@ export default function CarDetail() {
     if (cars.length === 0) {
       fetchCars();
     } else {
-      // Find the car based on the ID from URL
       const foundCar = cars.find((c) => c._id === id);
       setCar(foundCar);
       setLoading(false);
