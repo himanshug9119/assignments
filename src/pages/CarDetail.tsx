@@ -3,6 +3,7 @@ import { Trash2, Edit, ChevronLeft } from "lucide-react";
 import { useCarStore } from "../store/carStore";
 import authStore from "../store/authStore";
 import { useEffect, useState } from "react";
+import Loader from "../components/Loading";
 
 export default function CarDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,9 +41,7 @@ export default function CarDetail() {
 
   if (loading) {
     return (
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <p className="text-center text-gray-500">Loading...</p>
-      </div>
+      <Loader/>
     );
   }
 
