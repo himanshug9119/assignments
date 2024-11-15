@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { useCarStore } from "../store/carStore";
 import authStore from "../store/authStore";
+import Loader from "../components/Loading"; // Import your Loader component
 
 const carSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
@@ -51,6 +52,7 @@ export default function EditCarForm() {
   const [imagePreviews, setImagePreviews] = useState<File[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(true); // State for loading effect
 
   useEffect(() => {
     if (car) {
@@ -61,6 +63,7 @@ export default function EditCarForm() {
         tags: car.tags,
       });
       setImagePreviews([]);
+      setLoading(false); // Stop loading once the car data is set
     } else {
       navigate("/");
     }
@@ -112,6 +115,14 @@ export default function EditCarForm() {
       navigate(`/cars/${car._id}`);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader /> {/* Render your Loader component here */}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto py-6 mt-5 mb-5 px-4 bg-gray-50 rounded-lg shadow-lg">
@@ -282,12 +293,13 @@ export default function EditCarForm() {
           </div>
         </div>
 
-        <div className="text-center mt-6">
+        {/* Submit Button */}
+        <div>
           <button
             type="submit"
-            className="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-lg"
+            className="w-full py-3 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
           >
-            Update Car
+            Save Changes
           </button>
         </div>
       </form>
