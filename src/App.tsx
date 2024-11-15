@@ -10,6 +10,7 @@ import CarDetail from './pages/CarDetail';
 import EditCarForm from './pages/EditCarForm';
 import Footer from './components/Footer';
 import PageNotFound from './components/PageNotFound';
+import Documentation from './pages/Documentation';
 function App() {
   return (
     <Router>
@@ -19,6 +20,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          {/* documentation */}
+          <Route path="/documentation" element={<Documentation />} />
           <Route
             path="/dashboard"
             element={

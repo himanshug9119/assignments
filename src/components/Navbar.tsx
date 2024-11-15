@@ -44,6 +44,16 @@ export default function Navbar() {
               </Link>
             )}
 
+            {location.pathname !== "/documentation" && (
+              <Link
+                to="/documentation"
+                className={`inline-flex items-center px-3 py-2 text-sm leading-4 font-medium rounded-md ${isActive(
+                  "/documentation"
+                )}`}
+              >
+                Documentation
+              </Link>
+            )}
             {/* Portfolio Button - Available to all users */}
             <a
               href="https://himanshugupta.onrender.com/"
@@ -53,7 +63,6 @@ export default function Navbar() {
             >
               My Portfolio
             </a>
-
             {user ? (
               <>
                 <span className="text-gray-700">Welcome, {user.name}</span>
@@ -94,9 +103,13 @@ export default function Navbar() {
                     Login
                   </Link>
                 )}
-                {location.pathname !== "/register" && location.pathname !== "/login" && (
-                  <span className="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium text-gray-700"> or </span>
-                )}
+                {location.pathname !== "/register" &&
+                  location.pathname !== "/login" && (
+                    <span className="inline-flex items-center px-3 py-2 text-sm leading-4 font-medium text-gray-700">
+                      {" "}
+                      or{" "}
+                    </span>
+                  )}
                 {location.pathname !== "/register" && (
                   <Link
                     to="/register"
@@ -164,7 +177,15 @@ export default function Navbar() {
           >
             My Portfolio
           </a>
-
+          <Link
+            to="/documentation"
+            className={`block w-full text-left px-3 py-2 text-sm rounded-md ${isActive(
+              "/"
+            )}`}
+            onClick={closeMenu}
+          >
+            Documentation
+          </Link>
           {user ? (
             <>
               <span className="block px-3 py-2 text-sm text-gray-700">
@@ -188,6 +209,7 @@ export default function Navbar() {
               >
                 Profile
               </Link>
+
               <button
                 onClick={logout}
                 className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -199,22 +221,22 @@ export default function Navbar() {
           ) : (
             <>
               {location.pathname !== "/login" && (
-              <Link
-                to="/login"
-                className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-indigo-100"
-                onClick={closeMenu}
-              >
-                Login
-              </Link>
+                <Link
+                  to="/login"
+                  className="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-indigo-100"
+                  onClick={closeMenu}
+                >
+                  Login
+                </Link>
               )}
               {location.pathname !== "/register" && (
-              <Link
-                to="/register"
-                className="block w-full text-left px-3 py-2 text-sm text-white bg-indigo-600 hover:bg-indigo-700"
-                onClick={closeMenu}
-              >
-                Register
-              </Link>
+                <Link
+                  to="/register"
+                  className="block w-full text-left px-3 py-2 text-sm text-white bg-indigo-600 hover:bg-indigo-700"
+                  onClick={closeMenu}
+                >
+                  Register
+                </Link>
               )}
             </>
           )}
