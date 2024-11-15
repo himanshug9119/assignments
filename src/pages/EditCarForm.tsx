@@ -52,7 +52,7 @@ export default function EditCarForm() {
   const [imagePreviews, setImagePreviews] = useState<File[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [loading, setLoading] = useState(true); // State for loading effect
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     if (car) {
