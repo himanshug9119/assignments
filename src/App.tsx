@@ -7,7 +7,7 @@ import Dashboard from './pages/Dashboard';
 import CarForm from './pages/CarForm';
 import CarDetail from './pages/CarDetail';
 import EditCarForm from './pages/EditCarForm';
-
+import Footer from './components/Footer';
 function App() {
   return (
     <Router>
@@ -37,6 +37,7 @@ function App() {
             </AuthGuard>
           } />
         </Routes>
+        <Footer />
       </div>
     </Router>
   );
