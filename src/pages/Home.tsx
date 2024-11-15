@@ -1,8 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { Plus, User, Edit, Trash2 } from "lucide-react";
-
+import { useState, useEffect } from "react";
+import Loading from "../components/Loading";
 export default function AdminHome() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <Loading />
+    );
+  }
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -39,7 +52,7 @@ export default function AdminHome() {
             </button>
 
             <button
-              onClick={() => navigate("/cars/add")}
+              onClick={() => navigate("/cars/new")}
               className="flex items-center bg-gray-100 p-6 rounded-lg shadow hover:bg-gray-200 transition"
             >
               <Plus className="h-8 w-8 text-indigo-600 mr-4" />
