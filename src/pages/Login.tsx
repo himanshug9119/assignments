@@ -3,8 +3,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Car } from "lucide-react"; 
-import { FaGithub, FaGoogle, FaMicrosoft, FaFacebook } from "react-icons/fa";
+import { Car } from "lucide-react";
+import { FaGithub, FaGoogle, FaMicrosoft, FaFacebook ,FaEye,
+  FaEyeSlash, } from "react-icons/fa";
 import authStore from "../store/authStore";
 
 const loginSchema = z.object({
@@ -18,6 +19,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { login } = authStore();
   const [error, setError] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
 
   const {
     register,
@@ -90,12 +92,19 @@ export default function Login() {
             >
               Password
             </label>
-            <div className="mt-1">
+            <div className="mt-1 relative">
               <input
                 {...register("password")}
-                type="password"
+                type={passwordVisible ? "text" : "password"}
                 className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
+              <button
+                type="button"
+                onClick={() => setPasswordVisible(!passwordVisible)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+              </button>
               {errors.password && (
                 <p className="mt-2 text-sm text-red-600">
                   {errors.password.message}
