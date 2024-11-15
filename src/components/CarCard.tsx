@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 export function CarCard({ car }: { car: any }) {
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
+
   return (
     <Link
       to={`/cars/${car._id}`}
@@ -9,10 +12,16 @@ export function CarCard({ car }: { car: any }) {
       <div className="relative pb-[56.25%]">
         {" "}
         {/* 16:9 Aspect Ratio */}
+        {!isImageLoaded && (
+          <div className="absolute top-0 left-0 w-full h-full bg-gray-300 animate-pulse"></div>
+        )}
         <img
           src={car.images[0]}
           alt={car.title}
-          className="object-cover w-full h-full absolute top-0 left-0"
+          className={`object-cover w-full h-full absolute top-0 left-0 transition-opacity duration-300 ${
+            isImageLoaded ? "opacity-100" : "opacity-0"
+          }`}
+          onLoad={() => setIsImageLoaded(true)}
         />
       </div>
       <div className="p-4">
