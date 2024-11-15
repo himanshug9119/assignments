@@ -12,6 +12,7 @@ export default function CarDetail() {
 
   const [loading, setLoading] = useState(true);
   const [car, setCar] = useState<any>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     // Fetch cars if not already loaded
@@ -24,6 +25,18 @@ export default function CarDetail() {
       setLoading(false);
     }
   }, [cars, id, fetchCars]);
+
+  useEffect(() => {
+    if (car && car.images.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex(
+          (prevIndex) => (prevIndex + 1) % car.images.length
+        );
+      }, 3000); // Change image every 3 seconds
+
+      return () => clearInterval(interval); // Cleanup interval on component unmount
+    }
+  }, [car]);
 
   if (loading) {
     return (
@@ -116,14 +129,53 @@ export default function CarDetail() {
             </div>
 
             <div className="space-y-4">
-              {car.images.map((image: string, index: number) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`${car.title} - Image ${index + 1}`}
-                  className="w-full h-64 sm:h-72 object-cover rounded-lg"
-                />
-              ))}
+              <div className="relative">
+                {car.images.length > 0 && (
+                  <img
+                    src={car.images[currentImageIndex]}
+                    alt={`${car.title} - Image ${currentImageIndex + 1}`}
+                    className="w-full h-64 sm:h-72 object-cover rounded-lg transition-all duration-500 ease-in-out"
+                  />
+                )}
+                <div className="absolute inset-0 flex items-center justify-between px-4">
+                  <button
+                    onClick={() =>
+                      setCurrentImageIndex(
+                        (currentImageIndex - 1 + car.images.length) %
+                          car.images.length
+                      )
+                    }
+                    className="bg-black text-white p-2 rounded-full opacity-50 hover:opacity-100"
+                  >
+                    &#8249;
+                  </button>
+                  <button
+                    onClick={() =>
+                      setCurrentImageIndex(
+                        (currentImageIndex + 1) % car.images.length
+                      )
+                    }
+                    className="bg-black text-white p-2 rounded-full opacity-50 hover:opacity-100"
+                  >
+                    &#8250;
+                  </button>
+                </div>
+              </div>
+
+              {/* Bullet Points for Image Indexing */}
+              <div className="flex justify-center space-x-2 mt-2">
+                {car.images.map((_: string, index: number) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-3 h-3 rounded-full ${
+                      currentImageIndex === index
+                        ? "bg-indigo-600"
+                        : "bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
