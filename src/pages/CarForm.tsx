@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { X } from "lucide-react";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase";
+import { useState } from "react";
 import { useCarStore } from "../store/carStore";
 import authStore from "../store/authStore";
 
@@ -10,7 +12,7 @@ const carSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
   images: z
-    .array(z.string().url("Must be a valid URL"))
+    .array(z.string())
     .min(1, "At least one image is required")
     .max(10, "Maximum 10 images allowed"),
   tags: z.object({
@@ -31,49 +33,78 @@ export default function CarForm() {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue,
+    getValues,
   } = useForm<CarForm>({
     resolver: zodResolver(carSchema),
     defaultValues: {
-      images: [""],
-      tags: {
-        carType: "",
-        company: "",
-        dealer: "",
-      },
+      images: [],
+      tags: { carType: "", company: "", dealer: "" },
     },
   });
 
-  const images = watch("images");
+  const [imagePreviews, setImagePreviews] = useState<File[]>([]); // To store selected images for preview
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]); // To store uploaded image URLs
+  const [uploading, setUploading] = useState(false); // To track uploading state
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const fileArray = Array.from(files);
+    setImagePreviews(fileArray); // Update the preview images
+
+    // Reset images in the form state until upload is triggered
+    setValue("images", []);
+  };
+
+  const handleImageDelete = (index: number) => {
+    // Remove the image from the preview array
+    const updatedPreviews = [...imagePreviews];
+    updatedPreviews.splice(index, 1);
+    setImagePreviews(updatedPreviews);
+
+    // Update the form state to remove the deleted image
+    const updatedImages = [...(getValues("images") as string[])];
+    updatedImages.splice(index, 1);
+    setValue("images", updatedImages);
+  };
+
+  const handleImageUpload = async () => {
+    if (uploading) return; // Prevent multiple uploads at once
+
+    setUploading(true);
+
+    try {
+      const uploadPromises = imagePreviews.map(async (file) => {
+        const fileRef = ref(storage, `cars/${Date.now()}-${file.name}`);
+        await uploadBytes(fileRef, file);
+        return await getDownloadURL(fileRef);
+      });
+
+      const uploadedUrls = await Promise.all(uploadPromises);
+      setUploadedImages(uploadedUrls); // Store uploaded URLs
+      setValue("images", uploadedUrls); // Set the uploaded URLs to the form state
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const onSubmit = (data: CarForm) => {
     if (user) {
-      addCar({
-        ...data,
-        userId: user.id,
-      });
+      addCar({ ...data, userId: user.id });
       navigate("/");
     }
   };
 
-  const addImageField = () => {
-    if (images.length < 10) {
-      setValue("images", [...images, ""]);
-    }
-  };
-
-  const removeImageField = (index: number) => {
-    const newImages = images.filter((_, i) => i !== index);
-    setValue("images", newImages);
-  };
-
   return (
-    <div className="max-w-2xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Add New Car</h1>
+    <div className="max-w-lg mx-auto py-6 mt-5 mb-5 px-4 bg-gray-50 rounded-lg shadow-lg">
+      <h1 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+        Add New Car
+      </h1>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Title */}
         <div>
           <label
             htmlFor="title"
@@ -84,14 +115,13 @@ export default function CarForm() {
           <input
             type="text"
             {...register("title")}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="mt-2 w-full p-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
           />
           {errors.title && (
-            <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+            <p className="mt-2 text-xs text-red-600">{errors.title.message}</p>
           )}
         </div>
 
-        {/* Description */}
         <div>
           <label
             htmlFor="description"
@@ -102,56 +132,75 @@ export default function CarForm() {
           <textarea
             {...register("description")}
             rows={4}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="mt-2 w-full p-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
           />
           {errors.description && (
-            <p className="mt-1 text-sm text-red-600">
+            <p className="mt-2 text-xs text-red-600">
               {errors.description.message}
             </p>
           )}
         </div>
 
-        {/* Images */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Images (URLs)
-          </label>
-          {images.map((_, index) => (
-            <div key={index} className="flex gap-2 mb-2">
-              <input
-                type="url"
-                {...register(`images.${index}`)}
-                className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="https://example.com/image.jpg"
-              />
-              {index > 0 && (
-                <button
-                  type="button"
-                  onClick={() => removeImageField(index)}
-                  className="p-2 text-gray-400 hover:text-gray-500"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-          ))}
-          {images.length < 10 && (
-            <button
-              type="button"
-              onClick={addImageField}
-              className="mt-2 text-sm text-indigo-600 hover:text-indigo-500"
+        <div className="flex flex-col sm:flex-row items-center gap-4">
+          <div className="flex-1">
+            <label
+              htmlFor="images"
+              className="block text-sm font-medium text-gray-700"
             >
-              Add another image
-            </button>
-          )}
-          {errors.images && (
-            <p className="mt-1 text-sm text-red-600">{errors.images.message}</p>
-          )}
+              Upload Images
+            </label>
+            <input
+              type="file"
+              accept=".png,.jpg,.jpeg"
+              multiple
+              onChange={(e) => handleFileSelect(e.target.files)}
+              disabled={uploading}
+              className="mt-2 block w-full p-2 rounded-lg border border-gray-300 text-sm"
+            />
+            {errors.images && (
+              <p className="mt-2 text-xs text-red-600">
+                {errors.images.message}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleImageUpload}
+            disabled={uploading || imagePreviews.length === 0}
+            className="w-full sm:w-auto py-2 px-4 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 disabled:bg-gray-400"
+          >
+            {uploading ? "Uploading..." : "Upload Images"}
+          </button>
         </div>
 
-        {/* Tags */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* Car Type */}
+        {imagePreviews.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <h3 className="text-lg font-semibold text-gray-700">
+              Preview Images
+            </h3>
+            <div className="flex flex-wrap gap-3">
+              {imagePreviews.map((file, index) => (
+                <div key={index} className="relative w-20 h-20">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={`Preview ${index}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleImageDelete(index)}
+                    className="absolute top-0 right-0 p-1 bg-red-600 text-white rounded-full text-xs"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label
               htmlFor="carType"
@@ -162,16 +211,15 @@ export default function CarForm() {
             <input
               type="text"
               {...register("tags.carType")}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-2 w-full p-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
             />
             {errors.tags?.carType && (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-2 text-xs text-red-600">
                 {errors.tags.carType.message}
               </p>
             )}
           </div>
 
-          {/* Company */}
           <div>
             <label
               htmlFor="company"
@@ -182,16 +230,15 @@ export default function CarForm() {
             <input
               type="text"
               {...register("tags.company")}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-2 w-full p-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
             />
             {errors.tags?.company && (
-              <p className="mt-1 text-sm text-red-600">
+              <p className="mt-2 text-xs text-red-600">
                 {errors.tags.company.message}
               </p>
             )}
           </div>
 
-          {/* Dealer */}
           <div>
             <label
               htmlFor="dealer"
@@ -202,30 +249,23 @@ export default function CarForm() {
             <input
               type="text"
               {...register("tags.dealer")}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              className="mt-2 w-full p-2 rounded-lg border border-gray-300 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm"
             />
             {errors.tags?.dealer && (
-              <p className="mt-1 text-sm text-red-600">
-                {errors.tags?.dealer.message}
+              <p className="mt-2 text-xs text-red-600">
+                {errors.tags.dealer.message}
               </p>
             )}
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/")}
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            Cancel
-          </button>
+        <div className="text-center">
           <button
             type="submit"
-            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            disabled={uploading || uploadedImages.length === 0}
+            className="py-2 px-4 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700"
           >
-            Create Car
+            Add Car
           </button>
         </div>
       </form>
