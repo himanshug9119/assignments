@@ -7,7 +7,7 @@ import { storage } from "../firebase";
 import { useState } from "react";
 import { useCarStore } from "../store/carStore";
 import authStore from "../store/authStore";
-
+import Loading from "../components/Loading";
 const carSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters"),
   description: z.string().min(10, "Description must be at least 10 characters"),
@@ -46,6 +46,7 @@ export default function CarForm() {
   const [imagePreviews, setImagePreviews] = useState<File[]>([]); // To store selected images for preview
   const [uploadedImages, setUploadedImages] = useState<string[]>([]); // To store uploaded image URLs
   const [uploading, setUploading] = useState(false); // To track uploading state
+  const [loading, setLoading] = useState(false); // To track loading state for the entire page
 
   const handleFileSelect = (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -91,12 +92,25 @@ export default function CarForm() {
     }
   };
 
-  const onSubmit = (data: CarForm) => {
+  const onSubmit = async (data: CarForm) => {
     if (user) {
-      addCar({ ...data, userId: user.id });
-      navigate("/");
+      setLoading(true); // Start loading
+      try {
+        await addCar({ ...data, userId: user.id });
+        navigate("/");
+      } catch (error) {
+        console.error("Error adding car:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <Loading/>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto py-6 mt-5 mb-5 px-4 bg-gray-50 rounded-lg shadow-lg">
