@@ -14,7 +14,7 @@ export default function CarDetail() {
   const [loading, setLoading] = useState(true);
   const [car, setCar] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
   useEffect(() => {
     // Fetch cars if not already loaded
     if (cars.length === 0) {
@@ -130,11 +130,18 @@ export default function CarDetail() {
             <div className="space-y-4">
               <div className="relative">
                 {car.images.length > 0 && (
-                  <img
-                    src={car.images[currentImageIndex]}
-                    alt={`${car.title} - Image ${currentImageIndex + 1}`}
-                    className="w-full h-64 sm:h-72 object-cover rounded-lg transition-all duration-500 ease-in-out"
-                  />
+                  <>
+                    {!isImageLoaded && (
+                      <div className="absolute top-0 left-0 w-full h-full bg-gray-300 animate-pulse"></div>
+                    )}
+                    <img
+                      src={car.images[currentImageIndex]}
+                      alt={`${car.title} - Image ${currentImageIndex + 1}`}
+                      className={`w-full h-64 sm:h-72 object-cover rounded-lg transition-all duration-500 ease-in-out ${
+            isImageLoaded ? "opacity-100" : "opacity-0"}`}
+                      onLoad={() => setIsImageLoaded(true)}
+                    />
+                  </>
                 )}
                 <div className="absolute inset-0 flex items-center justify-between px-4">
                   <button
